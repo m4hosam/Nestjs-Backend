@@ -44,14 +44,14 @@ Before starting, identify:
 **Location**: `src/entities/{schema}/{entity-name}.entity.ts`
 
 ```typescript
-import { 
-  Entity, 
-  Column, 
-  PrimaryGeneratedColumn, 
-  ManyToOne, 
-  OneToMany, 
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
   JoinColumn,
-  Index
+  Index,
 } from 'typeorm';
 import { BaseTransactionEntity } from '../base/base-transaction.entity';
 import { RelatedEntity } from './related-entity.entity';
@@ -72,7 +72,7 @@ export class EntityName extends BaseTransactionEntity {
   // Many-to-One relationship
   @ManyToOne(() => RelatedEntity, (related) => related.entityNames, {
     onDelete: 'RESTRICT', // Prevent cascade deletes by default
-    nullable: false
+    nullable: false,
   })
   @JoinColumn({ name: 'fk_related_entity_id' })
   relatedEntity: RelatedEntity;
@@ -98,13 +98,13 @@ export class EntityName extends BaseTransactionEntity {
 **Location**: `src/entities/base/base-transaction.entity.ts`
 
 ```typescript
-import { 
-  CreateDateColumn, 
-  UpdateDateColumn, 
-  Column, 
+import {
+  CreateDateColumn,
+  UpdateDateColumn,
+  Column,
   PrimaryGeneratedColumn,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../users/user.entity';
 
@@ -144,40 +144,40 @@ export abstract class BaseTransactionEntity {
 #### Create DTO
 
 ```typescript
-import { 
-  IsString, 
-  IsNotEmpty, 
-  IsOptional, 
-  IsInt, 
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
   MaxLength,
-  MinLength
+  MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class CreateEntityDto {
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Entity name',
     example: 'Sample Entity',
-    maxLength: 100
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty({ message: 'ENTITY_NAME_REQUIRED' }) // Return localization key
   @MaxLength(100, { message: 'ENTITY_NAME_TOO_LONG' })
   name: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Entity description',
-    required: false 
+    required: false,
   })
   @IsString()
   @IsOptional()
   @MaxLength(255, { message: 'ENTITY_DESCRIPTION_TOO_LONG' })
   description?: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Related entity ID',
-    example: 1
+    example: 1,
   })
   @IsInt({ message: 'RELATED_ENTITY_ID_MUST_BE_NUMBER' })
   @IsNotEmpty({ message: 'RELATED_ENTITY_ID_REQUIRED' })
@@ -311,7 +311,12 @@ export class BaseFilterDto {
   @Type(() => Number)
   page?: number = 1;
 
-  @ApiPropertyOptional({ description: 'Items per page', default: 10, minimum: 1, maximum: 100 })
+  @ApiPropertyOptional({
+    description: 'Items per page',
+    default: 10,
+    minimum: 1,
+    maximum: 100,
+  })
   @IsOptional()
   @IsInt()
   @Min(1)
@@ -324,7 +329,11 @@ export class BaseFilterDto {
   @IsString()
   sortBy?: string = 'id';
 
-  @ApiPropertyOptional({ description: 'Sort order', enum: ['ASC', 'DESC'], default: 'DESC' })
+  @ApiPropertyOptional({
+    description: 'Sort order',
+    enum: ['ASC', 'DESC'],
+    default: 'DESC',
+  })
   @IsOptional()
   @IsIn(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC' = 'DESC';
@@ -350,8 +359,16 @@ export class BaseFilterDto {
 **Location**: `src/repositories/generic/generic.repository.ts`
 
 ```typescript
-import { Repository, FindOptionsWhere, FindManyOptions, FindOneOptions } from 'typeorm';
-import { IPaginationOptions, PaginatedResult } from '../../common/interfaces/pagination.interface';
+import {
+  Repository,
+  FindOptionsWhere,
+  FindManyOptions,
+  FindOneOptions,
+} from 'typeorm';
+import {
+  IPaginationOptions,
+  PaginatedResult,
+} from '../../common/interfaces/pagination.interface';
 
 export abstract class GenericRepository<T> {
   constructor(protected readonly repository: Repository<T>) {}
@@ -411,8 +428,8 @@ export abstract class GenericRepository<T> {
   }
 
   async updateMany(entities: Array<{ id: number } & Partial<T>>): Promise<T[]> {
-    const updatePromises = entities.map(entity => 
-      this.update(entity.id, entity)
+    const updatePromises = entities.map((entity) =>
+      this.update(entity.id, entity),
     );
     return Promise.all(updatePromises);
   }
@@ -496,7 +513,10 @@ export class EntityRepository extends GenericRepository<EntityName> {
 
 ```typescript
 import { GenericRepository } from '../../repositories/generic/generic.repository';
-import { IPaginationOptions, PaginatedResult } from '../../common/interfaces/pagination.interface';
+import {
+  IPaginationOptions,
+  PaginatedResult,
+} from '../../common/interfaces/pagination.interface';
 import { FindManyOptions } from 'typeorm';
 import { NotFoundException } from '../../common/exceptions/not-found.exception';
 import { ConflictException } from '../../common/exceptions/conflict.exception';
@@ -512,7 +532,7 @@ export abstract class GenericService<T, CreateDto, UpdateDto, ResponseDto> {
 
   async findAll(options?: FindManyOptions<T>): Promise<ResponseDto[]> {
     const entities = await this.repository.findAll(options);
-    return entities.map(entity => this.toResponseDto(entity));
+    return entities.map((entity) => this.toResponseDto(entity));
   }
 
   async findWithPagination(
@@ -525,14 +545,14 @@ export abstract class GenericService<T, CreateDto, UpdateDto, ResponseDto> {
     );
 
     return {
-      data: result.data.map(entity => this.toResponseDto(entity)),
+      data: result.data.map((entity) => this.toResponseDto(entity)),
       meta: result.meta,
     };
   }
 
   async findById(id: number): Promise<ResponseDto> {
     const entity = await this.repository.findById(id);
-    
+
     if (!entity) {
       throw new NotFoundException(`${this.entityName.toUpperCase()}_NOT_FOUND`);
     }
@@ -542,7 +562,7 @@ export abstract class GenericService<T, CreateDto, UpdateDto, ResponseDto> {
 
   async create(dto: CreateDto, userId?: number): Promise<ResponseDto> {
     const entityData = this.toEntity(dto);
-    
+
     if (userId) {
       entityData['createdBy'] = userId;
     }
@@ -552,7 +572,7 @@ export abstract class GenericService<T, CreateDto, UpdateDto, ResponseDto> {
   }
 
   async createMany(dtos: CreateDto[], userId?: number): Promise<ResponseDto[]> {
-    const entitiesData = dtos.map(dto => {
+    const entitiesData = dtos.map((dto) => {
       const entityData = this.toEntity(dto);
       if (userId) {
         entityData['createdBy'] = userId;
@@ -561,24 +581,26 @@ export abstract class GenericService<T, CreateDto, UpdateDto, ResponseDto> {
     });
 
     const entities = await this.repository.createMany(entitiesData);
-    return entities.map(entity => this.toResponseDto(entity));
+    return entities.map((entity) => this.toResponseDto(entity));
   }
 
   async update(dto: UpdateDto, userId?: number): Promise<ResponseDto> {
     const id = dto['id'];
-    
+
     if (!id) {
-      throw new NotFoundException(`${this.entityName.toUpperCase()}_ID_REQUIRED`);
+      throw new NotFoundException(
+        `${this.entityName.toUpperCase()}_ID_REQUIRED`,
+      );
     }
 
     const existingEntity = await this.repository.findById(id);
-    
+
     if (!existingEntity) {
       throw new NotFoundException(`${this.entityName.toUpperCase()}_NOT_FOUND`);
     }
 
     const entityData = this.toEntity(dto);
-    
+
     if (userId) {
       entityData['updatedBy'] = userId;
     }
@@ -588,7 +610,7 @@ export abstract class GenericService<T, CreateDto, UpdateDto, ResponseDto> {
   }
 
   async updateMany(dtos: UpdateDto[], userId?: number): Promise<ResponseDto[]> {
-    const entitiesData = dtos.map(dto => {
+    const entitiesData = dtos.map((dto) => {
       const entityData = this.toEntity(dto);
       if (userId) {
         entityData['updatedBy'] = userId;
@@ -597,12 +619,12 @@ export abstract class GenericService<T, CreateDto, UpdateDto, ResponseDto> {
     });
 
     const entities = await this.repository.updateMany(entitiesData);
-    return entities.map(entity => this.toResponseDto(entity));
+    return entities.map((entity) => this.toResponseDto(entity));
   }
 
   async delete(id: number): Promise<void> {
     const entity = await this.repository.findById(id);
-    
+
     if (!entity) {
       throw new NotFoundException(`${this.entityName.toUpperCase()}_NOT_FOUND`);
     }
@@ -612,7 +634,7 @@ export abstract class GenericService<T, CreateDto, UpdateDto, ResponseDto> {
 
   async softDelete(id: number, userId?: number): Promise<void> {
     const entity = await this.repository.findById(id);
-    
+
     if (!entity) {
       throw new NotFoundException(`${this.entityName.toUpperCase()}_NOT_FOUND`);
     }
@@ -677,7 +699,7 @@ export class EntityService extends GenericService<
     }
 
     const entity = await this.entityRepository.findByName(name);
-    
+
     if (!entity) {
       throw new NotFoundException('ENTITY_NOT_FOUND');
     }
@@ -687,14 +709,17 @@ export class EntityService extends GenericService<
 
   async findActiveEntities(): Promise<EntityResponseDto[]> {
     const entities = await this.entityRepository.findActiveEntities();
-    return entities.map(entity => this.toResponseDto(entity));
+    return entities.map((entity) => this.toResponseDto(entity));
   }
 
   // Override create to add custom validation
-  async create(dto: CreateEntityDto, userId?: number): Promise<EntityResponseDto> {
+  async create(
+    dto: CreateEntityDto,
+    userId?: number,
+  ): Promise<EntityResponseDto> {
     // Check for duplicates
     const existingEntity = await this.entityRepository.findByName(dto.name);
-    
+
     if (existingEntity) {
       throw new BusinessValidationException('ENTITY_ALREADY_EXISTS');
     }
@@ -765,7 +790,7 @@ export class EntityController {
     @Query() filterDto: EntityFilterDto,
   ): Promise<PaginatedResult<EntityResponseDto>> {
     const { page, limit, sortBy, sortOrder, ...filters } = filterDto;
-    
+
     return this.entityService.findWithPagination(
       { page, limit },
       {
@@ -949,12 +974,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      if (typeof exceptionResponse === 'object' && 'messageKey' in exceptionResponse) {
+      if (
+        typeof exceptionResponse === 'object' &&
+        'messageKey' in exceptionResponse
+      ) {
         messageKey = (exceptionResponse as any).messageKey;
         details = (exceptionResponse as any).details;
       } else if (typeof exceptionResponse === 'string') {
         messageKey = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object' && 'message' in exceptionResponse) {
+      } else if (
+        typeof exceptionResponse === 'object' &&
+        'message' in exceptionResponse
+      ) {
         // Handle class-validator errors
         const messages = (exceptionResponse as any).message;
         if (Array.isArray(messages) && messages.length > 0) {
@@ -967,10 +998,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
     } else if (exception instanceof Error) {
       this.logger.error(exception.message, exception.stack);
       messageKey = 'INTERNAL_SERVER_ERROR';
-      details = process.env.NODE_ENV === 'development' ? {
-        message: exception.message,
-        stack: exception.stack,
-      } : undefined;
+      details =
+        process.env.NODE_ENV === 'development'
+          ? {
+              message: exception.message,
+              stack: exception.stack,
+            }
+          : undefined;
     }
 
     const errorResponse: ErrorResponse = {
@@ -1089,10 +1123,16 @@ export interface ApiResponse<T> {
 }
 
 @Injectable()
-export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
+export class ResponseInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T>
+> {
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Observable<ApiResponse<T>> {
     return next.handle().pipe(
-      map(data => ({
+      map((data) => ({
         success: true,
         data,
         timestamp: new Date().toISOString(),
@@ -1134,7 +1174,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload) {
     const user = await this.usersService.findById(payload.sub);
-    
+
     if (!user) {
       throw new UnauthorizedException('USER_NOT_FOUND');
     }
@@ -1164,7 +1204,10 @@ import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class RefreshTokenStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(private readonly configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -1176,7 +1219,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
 
   async validate(req: Request, payload: any) {
     const refreshToken = req.get('Authorization')?.replace('Bearer', '').trim();
-    
+
     if (!refreshToken) {
       throw new UnauthorizedException('REFRESH_TOKEN_REQUIRED');
     }
@@ -1214,7 +1257,7 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<TokensDto> {
     const user = await this.usersService.findByUsername(loginDto.username);
-    
+
     if (!user) {
       throw new UnauthorizedException('INVALID_CREDENTIALS');
     }
@@ -1223,36 +1266,53 @@ export class AuthService {
       throw new UnauthorizedException('USER_INACTIVE');
     }
 
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
-    
+    const isPasswordValid = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('INVALID_CREDENTIALS');
     }
 
-    const tokens = await this.generateTokens(user.id, user.username, user.roles);
-    
+    const tokens = await this.generateTokens(
+      user.id,
+      user.username,
+      user.roles,
+    );
+
     await this.updateRefreshToken(user.id, tokens.refreshToken);
-    
+
     return tokens;
   }
 
-  async refreshTokens(userId: number, refreshToken: string): Promise<TokensDto> {
+  async refreshTokens(
+    userId: number,
+    refreshToken: string,
+  ): Promise<TokensDto> {
     const user = await this.usersService.findById(userId);
-    
+
     if (!user || !user.refreshToken) {
       throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
     }
 
-    const isRefreshTokenValid = await bcrypt.compare(refreshToken, user.refreshToken);
-    
+    const isRefreshTokenValid = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
+
     if (!isRefreshTokenValid) {
       throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
     }
 
-    const tokens = await this.generateTokens(user.id, user.username, user.roles);
-    
+    const tokens = await this.generateTokens(
+      user.id,
+      user.username,
+      user.roles,
+    );
+
     await this.updateRefreshToken(user.id, tokens.refreshToken);
-    
+
     return tokens;
   }
 
@@ -1270,11 +1330,17 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRATION', '15m'),
+        expiresIn: this.configService.get<string>(
+          'JWT_ACCESS_EXPIRATION',
+          '15m',
+        ),
       }),
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRATION', '7d'),
+        expiresIn: this.configService.get<string>(
+          'JWT_REFRESH_EXPIRATION',
+          '7d',
+        ),
       }),
     ]);
 
@@ -1284,7 +1350,10 @@ export class AuthService {
     };
   }
 
-  private async updateRefreshToken(userId: number, refreshToken: string): Promise<void> {
+  private async updateRefreshToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<void> {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.usersService.updateRefreshToken(userId, hashedRefreshToken);
   }
@@ -1335,10 +1404,10 @@ export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (!requiredRoles) {
       return true;
@@ -1350,7 +1419,7 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('INSUFFICIENT_PERMISSIONS');
     }
 
-    const hasRole = requiredRoles.some(role => user.roles?.includes(role));
+    const hasRole = requiredRoles.some((role) => user.roles?.includes(role));
 
     if (!hasRole) {
       throw new ForbiddenException('INSUFFICIENT_PERMISSIONS');
@@ -1528,7 +1597,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  
+
   console.log(`Application is running on: http://localhost:${port}`);
   console.log(`Swagger documentation: http://localhost:${port}/api/docs`);
 }
@@ -1648,7 +1717,7 @@ export class BookService extends GenericService<
     }
 
     const books = await this.bookRepository.findByAuthor(author);
-    return books.map(book => this.toResponseDto(book));
+    return books.map((book) => this.toResponseDto(book));
   }
 }
 ```
@@ -1807,14 +1876,14 @@ All errors return this structure:
 
 ```json
 {
-  "statusCode": 404,
-  "error": "Not Found",
-  "messageKey": "USER_NOT_FOUND",
-  "details": {
-    "userId": 123
-  },
-  "timestamp": "2025-12-02T10:30:00.000Z",
-  "path": "/api/users/123"
+  "data": null,
+  "error": {
+    "messageKey": "USER_NOT_FOUND",
+    "message": "User is Not Found",
+    "details": {
+      "userId": 123
+    }
+  }
 }
 ```
 
@@ -1824,12 +1893,11 @@ All successful responses return this structure:
 
 ```json
 {
-  "success": true,
   "data": {
     "id": 1,
     "name": "Sample Entity"
   },
-  "timestamp": "2025-12-02T10:30:00.000Z"
+  "error": null
 }
 ```
 
@@ -1837,20 +1905,19 @@ All successful responses return this structure:
 
 ```json
 {
-  "success": true,
   "data": {
-    "data": [
+    "list": [
       { "id": 1, "name": "Entity 1" },
       { "id": 2, "name": "Entity 2" }
     ],
-    "meta": {
+    "paginationInfo": {
       "page": 1,
       "limit": 10,
       "total": 50,
       "totalPages": 5
     }
   },
-  "timestamp": "2025-12-02T10:30:00.000Z"
+  "error": null
 }
 ```
 
