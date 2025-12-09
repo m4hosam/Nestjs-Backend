@@ -30,13 +30,13 @@ import { PaginatedResult } from '../../../common/interfaces/pagination.interface
 
 @ApiTags('Users')
 @Controller('users')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
+// @UseGuards(JwtAuthGuard, RolesGuard)
+// @ApiBearerAuth()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Roles('admin')
+  // @Roles('admin')
   @ApiOperation({ summary: 'Get all users with pagination' })
   @ApiResponseWrapper(UserResponseDto, true, true)
   async findAll(

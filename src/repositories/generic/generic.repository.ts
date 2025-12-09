@@ -35,14 +35,14 @@ export abstract class GenericRepository<T extends ObjectLiteral> {
     const { page = 1, limit = 10 } = paginationOptions;
     const skip = (page - 1) * limit;
 
-    const [data, total] = await this.repository.findAndCount({
+    const [items, total] = await this.repository.findAndCount({
       ...findOptions,
       skip,
       take: limit,
     });
 
     return {
-      data,
+      items,
       meta: {
         page,
         limit,

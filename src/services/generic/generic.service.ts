@@ -35,7 +35,7 @@ export abstract class GenericService<
     );
 
     return {
-      data: result.data.map((entity) => this.toResponseDto(entity)),
+      items: result.items.map((entity) => this.toResponseDto(entity)),
       meta: result.meta,
     };
   }

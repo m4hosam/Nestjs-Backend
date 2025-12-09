@@ -13,11 +13,10 @@ export const ApiResponseWrapper = <TModel extends Type<any>>(
           allOf: [
             {
               properties: {
-                success: { type: 'boolean', example: true },
                 data: {
                   type: 'object',
                   properties: {
-                    data: {
+                    items: {
                       type: 'array',
                       items: { $ref: getSchemaPath(model) },
                     },
@@ -32,7 +31,7 @@ export const ApiResponseWrapper = <TModel extends Type<any>>(
                     },
                   },
                 },
-                timestamp: { type: 'string', format: 'date-time' },
+                error: { type: 'object', nullable: true, example: null },
               },
             },
           ],
@@ -47,11 +46,10 @@ export const ApiResponseWrapper = <TModel extends Type<any>>(
         allOf: [
           {
             properties: {
-              success: { type: 'boolean', example: true },
               data: isArray
                 ? { type: 'array', items: { $ref: getSchemaPath(model) } }
                 : { $ref: getSchemaPath(model) },
-              timestamp: { type: 'string', format: 'date-time' },
+              error: { type: 'object', nullable: true, example: null },
             },
           },
         ],

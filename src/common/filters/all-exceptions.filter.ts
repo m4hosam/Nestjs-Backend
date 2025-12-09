@@ -9,12 +9,12 @@ import {
 import { Response } from 'express';
 
 export interface ErrorResponse {
-  statusCode: number;
-  error: string;
-  messageKey: string;
-  details?: any;
-  timestamp: string;
-  path: string;
+  data: null;
+  error: {
+    messageKey: string;
+    message: string;
+    details?: any;
+  };
 }
 
 @Catch()
@@ -28,11 +28,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let messageKey = 'INTERNAL_SERVER_ERROR';
+    let message = 'Internal Server Error';
     let details: any = undefined;
 
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
       const exceptionResponse = exception.getResponse();
+      message = exception.message;
 
       if (
         typeof exceptionResponse === 'object' &&
@@ -42,6 +44,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         details = (exceptionResponse as any).details;
       } else if (typeof exceptionResponse === 'string') {
         messageKey = exceptionResponse;
+        message = exceptionResponse;
       } else if (
         typeof exceptionResponse === 'object' &&
         'message' in exceptionResponse
@@ -49,15 +52,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
         // Handle class-validator errors
         const messages = (exceptionResponse as any).message;
         if (Array.isArray(messages) && messages.length > 0) {
-          messageKey = messages[0]; // Use first validation error as key
+          messageKey = 'VALIDATION_ERROR';
+          message = messages[0];
           details = { validationErrors: messages };
         } else {
           messageKey = (exceptionResponse as any).message;
+          message = (exceptionResponse as any).message;
         }
       }
     } else if (exception instanceof Error) {
       this.logger.error(exception.message, exception.stack);
       messageKey = 'INTERNAL_SERVER_ERROR';
+      message = exception.message;
       details =
         process.env.NODE_ENV === 'development'
           ? {
@@ -67,13 +73,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
           : undefined;
     }
 
-    const errorResponse: ErrorResponse = {
-      statusCode,
-      error: HttpStatus[statusCode] || 'Internal Server Error',
-      messageKey,
-      details,
-      timestamp: new Date().toISOString(),
-      path: request.url,
+    const errorResponse = {
+      data: null,
+      error: {
+        messageKey,
+        message,
+        details,
+      },
     };
 
     this.logger.error(
