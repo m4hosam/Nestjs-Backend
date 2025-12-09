@@ -36,9 +36,4 @@ export class BaseFilterDto {
   @IsOptional()
   @IsIn(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC' = 'DESC';
-
-  @ApiPropertyOptional({ description: 'Schema name' })
-  @IsOptional()
-  @IsString()
-  schema?: string;
 }
