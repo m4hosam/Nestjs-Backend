@@ -10,8 +10,8 @@ The project follows a modular, layered architecture using NestJS.
 
 1.  **Controllers (`src/modules/*/controllers`)**: Handle HTTP requests, validation, and response formatting.
 2.  **Services (`src/modules/*/services`)**: Contain business logic. Extend `GenericService` for common CRUD operations.
-3.  **Repositories (`src/repositories`)**: Handle database interactions. Extend `GenericRepository` for common DB operations.
-4.  **Entities (`src/entities`)**: Define database schema. Extend `BaseTransactionEntity`.
+3.  **Repositories (`src/modules/*/repositories`)**: Handle database interactions. Extend `GenericRepository` for common DB operations. Feature-specific repositories reside within the module.
+4.  **Entities (`src/modules/*/entities`)**: Define database schema. Extend `BaseTransactionEntity`. Feature-specific entities reside within the module.
 5.  **DTOs (`src/modules/*/dto`)**: Define data transfer objects for validation.
 
 ## 2. Directory Structure
@@ -20,18 +20,14 @@ The project follows a modular, layered architecture using NestJS.
 src/
 ├── common/             # Shared utilities (decorators, filters, guards, etc.)
 ├── config/             # Configuration files
-├── entities/           # Database entities
-│   ├── base/           # Base entities
-│   └── [feature]/      # Feature-specific entities
-├── modules/            # Feature modules
+├── modules/            # Feature modules (Domain Driven)
 │   └── [feature]/
 │       ├── controllers/
 │       ├── dto/
+│       ├── entities/   # Feature-specific entities
+│       ├── repositories/ # Feature-specific repositories
 │       ├── services/
 │       └── [feature].module.ts
-├── repositories/       # Custom repositories
-│   ├── generic/        # Generic repository base
-│   └── [feature]/      # Feature-specific repositories
 └── services/           # Shared services
     └── generic/        # Generic service base
 ```
@@ -42,11 +38,12 @@ To add a new feature (e.g., `Products`), follow these steps:
 
 ### Step 1: Create Entity
 
-Create `src/entities/products/product.entity.ts`:
+Create `src/modules/products/entities/product.entity.ts`:
 
 ```typescript
 import { Entity, Column } from 'typeorm';
-import { BaseTransactionEntity } from '../base/base-transaction.entity';
+// Import base entity from common
+import { BaseTransactionEntity } from '../../../common/entities/base/base-transaction.entity';
 
 @Entity({ name: 'products' })
 export class Product extends BaseTransactionEntity {
@@ -58,14 +55,15 @@ export class Product extends BaseTransactionEntity {
 
 ### Step 2: Create Repository
 
-Create `src/repositories/products/product.repository.ts`:
+Create `src/modules/products/repositories/product.repository.ts`:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { GenericRepository } from '../generic/generic.repository';
-import { Product } from '../../entities/products/product.entity';
+// Import generic repository from common/core location
+import { GenericRepository } from '../../../repositories/generic/generic.repository';
+import { Product } from '../entities/product.entity';
 
 @Injectable()
 export class ProductRepository extends GenericRepository<Product> {
@@ -92,9 +90,9 @@ Create `src/modules/products/services/products.service.ts`:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { GenericService } from '../../services/generic/generic.service';
-import { Product } from '../../entities/products/product.entity';
-import { ProductRepository } from '../../repositories/products/product.repository';
+import { GenericService } from '../../../services/generic/generic.service';
+import { Product } from '../entities/product.entity';
+import { ProductRepository } from '../repositories/product.repository';
 // ... import DTOs
 
 @Injectable()
@@ -141,10 +139,10 @@ Create `src/modules/products/products.module.ts`:
 ```typescript
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Product } from '../../entities/products/product.entity';
+import { Product } from './entities/product.entity';
 import { ProductsController } from './controllers/products.controller';
 import { ProductsService } from './services/products.service';
-import { ProductRepository } from '../../repositories/products/product.repository';
+import { ProductRepository } from './repositories/product.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product])],
@@ -167,7 +165,29 @@ Import `ProductsModule` in `src/app.module.ts`.
 - **Error Handling**: Use `ErrorMessages` constants and throw custom exceptions (e.g., `BusinessValidationException`). The global filter will handle it.
 - **Environment Variables**: Access config via `ConfigService`. Ensure new variables are added to `.env.example`.
 
-## 5. Error Handling Standards
+## 5. Security Standards
+
+The application implements several security best practices by default.
+
+### 5.1. Headers & Helmet
+
+We use `helmet` to set secure HTTP headers. It is enabled globally in `main.ts`.
+
+### 5.2. Rate Limiting
+
+Global rate limiting is configured using `@nestjs/throttler`.
+
+- **Default Limit**: 10 requests per minute (configurable in `AppModule`).
+- **Storage**: In-memory by default (consider Redis for multi-instance deployments).
+
+### 5.3. API Versioning
+
+URI versioning is enabled. All endpoints must be accessed via `/api/v1/...`.
+
+- **Default**: `v1`
+- **Config**: Set in `main.ts`.
+
+## 6. Error Handling Standards
 
 We use a centralized error handling approach to ensure consistency across the application.
 
