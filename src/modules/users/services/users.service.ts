@@ -8,6 +8,7 @@ import { UserRepository } from '../../../repositories/users/user.repository';
 import { plainToInstance } from 'class-transformer';
 import { BusinessValidationException } from '../../../common/exceptions/business-validation.exception';
 import * as bcrypt from 'bcrypt';
+import { ErrorMessages } from '../../../common/constants/error-messages.constants';
 
 @Injectable()
 export class UsersService extends GenericService<
@@ -53,12 +54,14 @@ export class UsersService extends GenericService<
   async create(dto: CreateUserDto, userId?: number): Promise<UserResponseDto> {
     const existingUser = await this.userRepository.findByUsername(dto.username);
     if (existingUser) {
-      throw new BusinessValidationException('USERNAME_ALREADY_EXISTS');
+      throw new BusinessValidationException(
+        ErrorMessages.UsernameAlreadyExists,
+      );
     }
 
     const existingEmail = await this.userRepository.findByEmail(dto.email);
     if (existingEmail) {
-      throw new BusinessValidationException('EMAIL_ALREADY_EXISTS');
+      throw new BusinessValidationException(ErrorMessages.EmailAlreadyExists);
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);

@@ -41,6 +41,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
         'messageKey' in exceptionResponse
       ) {
         messageKey = (exceptionResponse as any).messageKey;
+        if ('message' in exceptionResponse) {
+          message = (exceptionResponse as any).message;
+        }
         details = (exceptionResponse as any).details;
       } else if (typeof exceptionResponse === 'string') {
         messageKey = exceptionResponse;

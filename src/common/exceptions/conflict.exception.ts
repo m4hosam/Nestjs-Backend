@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class ConflictException extends HttpException {
-  constructor(messageKey: string, details?: any) {
+  constructor(error: { key: string; message: string }, details?: any) {
     super(
       {
-        messageKey,
+        messageKey: error.key,
+        message: error.message,
         details,
       },
       HttpStatus.CONFLICT,

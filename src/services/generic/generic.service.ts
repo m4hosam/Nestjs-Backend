@@ -44,7 +44,10 @@ export abstract class GenericService<
     const entity = await this.repository.findById(id);
 
     if (!entity) {
-      throw new NotFoundException(`${this.entityName.toUpperCase()}_NOT_FOUND`);
+      throw new NotFoundException({
+        key: `${this.entityName.toUpperCase()}_NOT_FOUND`,
+        message: `${this.entityName} not found.`,
+      });
     }
 
     return this.toResponseDto(entity);
@@ -78,15 +81,19 @@ export abstract class GenericService<
     const id = (dto as any)['id'];
 
     if (!id) {
-      throw new NotFoundException(
-        `${this.entityName.toUpperCase()}_ID_REQUIRED`,
-      );
+      throw new NotFoundException({
+        key: `${this.entityName.toUpperCase()}_ID_REQUIRED`,
+        message: `${this.entityName} ID required.`,
+      });
     }
 
     const existingEntity = await this.repository.findById(id);
 
     if (!existingEntity) {
-      throw new NotFoundException(`${this.entityName.toUpperCase()}_NOT_FOUND`);
+      throw new NotFoundException({
+        key: `${this.entityName.toUpperCase()}_NOT_FOUND`,
+        message: `${this.entityName} not found.`,
+      });
     }
 
     const entityData = this.toEntity(dto);
@@ -97,7 +104,10 @@ export abstract class GenericService<
 
     const updatedEntity = await this.repository.update(id, entityData);
     if (!updatedEntity) {
-      throw new NotFoundException(`${this.entityName.toUpperCase()}_NOT_FOUND`);
+      throw new NotFoundException({
+        key: `${this.entityName.toUpperCase()}_NOT_FOUND`,
+        message: `${this.entityName} not found.`,
+      });
     }
     return this.toResponseDto(updatedEntity);
   }
@@ -119,7 +129,10 @@ export abstract class GenericService<
     const entity = await this.repository.findById(id);
 
     if (!entity) {
-      throw new NotFoundException(`${this.entityName.toUpperCase()}_NOT_FOUND`);
+      throw new NotFoundException({
+        key: `${this.entityName.toUpperCase()}_NOT_FOUND`,
+        message: `${this.entityName} not found.`,
+      });
     }
 
     await this.repository.delete(id);
@@ -129,7 +142,10 @@ export abstract class GenericService<
     const entity = await this.repository.findById(id);
 
     if (!entity) {
-      throw new NotFoundException(`${this.entityName.toUpperCase()}_NOT_FOUND`);
+      throw new NotFoundException({
+        key: `${this.entityName.toUpperCase()}_NOT_FOUND`,
+        message: `${this.entityName} not found.`,
+      });
     }
 
     await this.repository.update(id, {

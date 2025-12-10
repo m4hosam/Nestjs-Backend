@@ -7,6 +7,7 @@ import { ItemResponseDto } from '../dto/item-response.dto';
 import { ItemRepository } from '../../../repositories/items/item.repository';
 import { plainToInstance } from 'class-transformer';
 import { BusinessValidationException } from '../../../common/exceptions/business-validation.exception';
+import { ErrorMessages } from '../../../common/constants/error-messages.constants';
 
 @Injectable()
 export class ItemsService extends GenericService<
@@ -42,7 +43,7 @@ export class ItemsService extends GenericService<
   async create(dto: CreateItemDto, userId?: number): Promise<ItemResponseDto> {
     const existingSku = await this.itemRepository.findBySku(dto.sku);
     if (existingSku) {
-      throw new BusinessValidationException('SKU_ALREADY_EXISTS');
+      throw new BusinessValidationException(ErrorMessages.SkuAlreadyExists);
     }
 
     return super.create(dto, userId);
@@ -52,7 +53,7 @@ export class ItemsService extends GenericService<
     if (dto.sku) {
       const existingSku = await this.itemRepository.findBySku(dto.sku);
       if (existingSku && existingSku.id !== dto.id) {
-        throw new BusinessValidationException('SKU_ALREADY_EXISTS');
+        throw new BusinessValidationException(ErrorMessages.SkuAlreadyExists);
       }
     }
 
