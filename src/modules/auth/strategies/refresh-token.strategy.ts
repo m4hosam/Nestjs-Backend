@@ -23,6 +23,8 @@ export class RefreshTokenStrategy extends PassportStrategy(
   }
 
   async validate(req: Request, payload: any) {
+    console.log('RefreshTokenStrategy validate called');
+    console.log('Cookies:', req.cookies);
     const refreshToken = req.cookies?.refresh_token;
 
     if (!refreshToken) {

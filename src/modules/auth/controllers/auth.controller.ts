@@ -84,7 +84,6 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      path: '/auth/refresh',
     });
 
     res.cookie('user_details', JSON.stringify(tokens.user), {
@@ -96,7 +95,7 @@ export class AuthController {
 
   private clearCookies(res: Response) {
     res.clearCookie('access_token');
-    res.clearCookie('refresh_token', { path: '/auth/refresh' });
+    res.clearCookie('refresh_token');
     res.clearCookie('user_details');
   }
 }

@@ -11,6 +11,9 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix('api');
 
+  // Use cookie parser
+  app.use(require('cookie-parser')());
+
   // Enable CORS
   app.enableCors({
     origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
