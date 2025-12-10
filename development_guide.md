@@ -45,10 +45,10 @@ To add a new feature (e.g., `Products`), follow these steps:
 Create `src/entities/products/product.entity.ts`:
 
 ```typescript
-import { Entity, Column } from "typeorm";
-import { BaseTransactionEntity } from "../base/base-transaction.entity";
+import { Entity, Column } from 'typeorm';
+import { BaseTransactionEntity } from '../base/base-transaction.entity';
 
-@Entity({ name: "products" })
+@Entity({ name: 'products' })
 export class Product extends BaseTransactionEntity {
   @Column()
   name: string;
@@ -61,17 +61,17 @@ export class Product extends BaseTransactionEntity {
 Create `src/repositories/products/product.repository.ts`:
 
 ```typescript
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { GenericRepository } from "../generic/generic.repository";
-import { Product } from "../../entities/products/product.entity";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { GenericRepository } from '../generic/generic.repository';
+import { Product } from '../../entities/products/product.entity';
 
 @Injectable()
 export class ProductRepository extends GenericRepository<Product> {
   constructor(
     @InjectRepository(Product)
-    private readonly repo: Repository<Product>
+    private readonly repo: Repository<Product>,
   ) {
     super(repo);
   }
@@ -91,10 +91,10 @@ Create DTOs in `src/modules/products/dto/`:
 Create `src/modules/products/services/products.service.ts`:
 
 ```typescript
-import { Injectable } from "@nestjs/common";
-import { GenericService } from "../../services/generic/generic.service";
-import { Product } from "../../entities/products/product.entity";
-import { ProductRepository } from "../../repositories/products/product.repository";
+import { Injectable } from '@nestjs/common';
+import { GenericService } from '../../services/generic/generic.service';
+import { Product } from '../../entities/products/product.entity';
+import { ProductRepository } from '../../repositories/products/product.repository';
 // ... import DTOs
 
 @Injectable()
@@ -105,7 +105,7 @@ export class ProductsService extends GenericService<
   ProductResponseDto
 > {
   constructor(private readonly repo: ProductRepository) {
-    super(repo, "Product");
+    super(repo, 'Product');
   }
 
   // Implement abstract methods: toResponseDto, toEntity, findEntityById
@@ -117,14 +117,14 @@ export class ProductsService extends GenericService<
 Create `src/modules/products/controllers/products.controller.ts`:
 
 ```typescript
-import { Controller, UseGuards } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
-import { ProductsService } from "../services/products.service";
-import { JwtAuthGuard } from "../../../common/guards/jwt-auth.guard";
+import { Controller, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { ProductsService } from '../services/products.service';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 // ... imports
 
-@ApiTags("Products")
-@Controller("products")
+@ApiTags('Products')
+@Controller('products')
 @UseGuards(JwtAuthGuard)
 export class ProductsController {
   constructor(private readonly service: ProductsService) {}
@@ -139,12 +139,12 @@ export class ProductsController {
 Create `src/modules/products/products.module.ts`:
 
 ```typescript
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Product } from "../../entities/products/product.entity";
-import { ProductsController } from "./controllers/products.controller";
-import { ProductsService } from "./services/products.service";
-import { ProductRepository } from "../../repositories/products/product.repository";
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Product } from '../../entities/products/product.entity';
+import { ProductsController } from './controllers/products.controller';
+import { ProductsService } from './services/products.service';
+import { ProductRepository } from '../../repositories/products/product.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product])],
@@ -164,10 +164,51 @@ Import `ProductsModule` in `src/app.module.ts`.
 - **Generic Service/Repository**: Always extend these to inherit basic CRUD functionality (pagination, filtering, soft delete).
 - **Response Wrapper**: Use `@ApiResponseWrapper` decorator on controller methods to ensure consistent JSON response structure.
 - **Validation**: Use `class-validator` decorators in DTOs.
-- **Error Handling**: Throw `BusinessValidationException` for logic errors. The global filter will handle it.
+- **Error Handling**: Use `ErrorMessages` constants and throw custom exceptions (e.g., `BusinessValidationException`). The global filter will handle it.
 - **Environment Variables**: Access config via `ConfigService`. Ensure new variables are added to `.env.example`.
 
-## 5. Troubleshooting
+## 5. Error Handling Standards
+
+We use a centralized error handling approach to ensure consistency across the application.
+
+### 5.1. Define Error Messages
+
+All error messages should be defined in `src/common/constants/error-messages.constants.ts`.
+
+```typescript
+export const ErrorMessages = {
+  // ...
+  UserNotFound: {
+    key: 'AUTH_USER_NOT_FOUND',
+    message: 'User not found.',
+  },
+  // ...
+};
+```
+
+### 5.2. Throw Exceptions
+
+Use the custom exception classes in `src/common/exceptions/` and pass the ErrorMessage object.
+
+- **BusinessValidationException**: For logic validation errors (HTTP 400).
+- **ConflictException**: For resource conflicts, e.g., duplicate unique fields (HTTP 409).
+- **NotFoundException**: For missing resources (HTTP 404).
+- **ForbiddenException**: For permission issues (HTTP 403).
+
+**Example:**
+
+```typescript
+import { ErrorMessages } from '../../../common/constants/error-messages.constants';
+import { BusinessValidationException } from '../../../common/exceptions/business-validation.exception';
+
+// ...
+
+if (skuExists) {
+  throw new BusinessValidationException(ErrorMessages.SkuAlreadyExists);
+}
+```
+
+## 6. Troubleshooting
 
 - **Database Connection**: Check `.env` credentials. Ensure PostgreSQL is running.
 - **Missing Config**: If you see "Configuration key ... does not exist", check your `.env` file against `.env.example`.
