@@ -115,21 +115,27 @@ export class AuthService {
     const payload = { sub: userId, username, roles };
     const refreshPayload = { ...payload, jti: refreshJti };
 
-    // --- CHANGED SECTION START ---
-    // Read the Base64 string from config
-    const privateKeyBase64 = this.configService.getOrThrow<string>(
-      'JWT_PRIVATE_KEY_BASE64',
-    );
+    const privateKey = this.configService.getOrThrow<string>('JWT_PRIVATE_KEY');
 
-    // Decode it to get the correct multiline PEM format
-    const privateKey = Buffer.from(privateKeyBase64, 'base64').toString(
-      'utf-8',
-    );
-    // --- CHANGED SECTION END ---
+    // Robust formatting for PEM key
+    let formattedPrivateKey = privateKey.replace(/\\n/g, '\n');
+    if (!formattedPrivateKey.includes('\n')) {
+      // If no newlines found after replacement (meaning it was a solid single line)
+      // Force header/footer newlines
+      formattedPrivateKey = formattedPrivateKey
+        .replace(
+          '-----BEGIN RSA PRIVATE KEY-----',
+          '-----BEGIN RSA PRIVATE KEY-----\n',
+        )
+        .replace(
+          '-----END RSA PRIVATE KEY-----',
+          '\n-----END RSA PRIVATE KEY-----',
+        );
+    }
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
-        privateKey: privateKey,
+        privateKey: formattedPrivateKey,
         algorithm: 'RS256',
         expiresIn: this.configService.get<string>(
           'JWT_ACCESS_EXPIRATION',
@@ -137,7 +143,7 @@ export class AuthService {
         ) as any,
       }),
       this.jwtService.signAsync(refreshPayload, {
-        privateKey: privateKey,
+        privateKey: formattedPrivateKey,
         algorithm: 'RS256',
         expiresIn: this.configService.get<string>(
           'JWT_REFRESH_EXPIRATION',
