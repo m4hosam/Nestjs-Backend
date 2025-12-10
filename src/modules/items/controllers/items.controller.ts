@@ -28,6 +28,7 @@ import { Roles } from '../../../common/decorators/roles.decorator';
 import { ApiResponseWrapper } from '../../../common/decorators/api-response.decorator';
 import { PaginatedResult } from '../../../common/interfaces/pagination.interface';
 import { Public } from '../../../common/decorators/public.decorator';
+import { RoleEnum } from 'src/common/enums/roles.enum';
 
 @ApiTags('Items')
 @Controller('items')
@@ -66,7 +67,7 @@ export class ItemsController {
   }
 
   @Post()
-  @Roles('admin', 'manager')
+  @Roles(RoleEnum.Admin, RoleEnum.Manager)
   @ApiOperation({ summary: 'Create new item' })
   @ApiResponseWrapper(ItemResponseDto)
   async create(
@@ -78,7 +79,7 @@ export class ItemsController {
   }
 
   @Put()
-  @Roles('admin', 'manager')
+  @Roles(RoleEnum.Admin, RoleEnum.Manager)
   @ApiOperation({ summary: 'Update item' })
   @ApiResponseWrapper(ItemResponseDto)
   async update(
@@ -90,7 +91,7 @@ export class ItemsController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles(RoleEnum.Admin)
   @ApiOperation({ summary: 'Delete item' })
   async delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.itemsService.delete(id);

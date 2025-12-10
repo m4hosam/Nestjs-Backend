@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
+import { RoleEnum } from '../../../common/enums/roles.enum';
 import { GenericService } from '../../../services/generic/generic.service';
 import { User } from '../../../entities/users/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -52,6 +53,41 @@ export class UsersService extends GenericService<
   }
 
   async create(dto: CreateUserDto, userId?: number): Promise<UserResponseDto> {
+    if (userId) {
+      const creator = await this.findById(userId);
+      if (creator) {
+        const creatorRoles = creator.roles;
+        // Check permissions
+        const allowedRoles = [
+          RoleEnum.Manager,
+          RoleEnum.DeliveryDriver,
+          RoleEnum.Sales,
+        ];
+
+        if (creatorRoles.includes(RoleEnum.Admin)) {
+          // Admin can create limited roles
+          const hasForbiddenRole = dto.roles?.some(
+            (role) => !allowedRoles.includes(role as RoleEnum),
+          );
+          if (hasForbiddenRole) {
+            throw new ForbiddenException(ErrorMessages.InsufficientPermissions);
+          }
+        } else if (creatorRoles.includes(RoleEnum.Owner)) {
+          // Owner can create Admin + others
+          const ownerAllowed = [...allowedRoles, RoleEnum.Admin];
+          const hasForbiddenRole = dto.roles?.some(
+            (role) => !ownerAllowed.includes(role as RoleEnum),
+          );
+          if (hasForbiddenRole) {
+            throw new ForbiddenException(ErrorMessages.InsufficientPermissions);
+          }
+        } else {
+          // Other roles? Maybe shouldn't be here if guard blocks, but strictly enforcing:
+          throw new ForbiddenException(ErrorMessages.InsufficientPermissions);
+        }
+      }
+    }
+
     const existingUser = await this.userRepository.findByUsername(dto.username);
     if (existingUser) {
       throw new BusinessValidationException(

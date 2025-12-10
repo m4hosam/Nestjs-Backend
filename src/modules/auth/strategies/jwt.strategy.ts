@@ -16,10 +16,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
+    const publicKey = configService.getOrThrow<string>('JWT_PUBLIC_KEY');
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: any) => {
+          return request?.cookies?.access_token;
+        },
+      ]),
       ignoreExpiration: false,
-      secretOrKey: configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
+      secretOrKey: publicKey.replace(/\\n/g, '\n'),
+      algorithms: ['RS256'],
     });
   }
 

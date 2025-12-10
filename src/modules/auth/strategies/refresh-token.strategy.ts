@@ -10,16 +10,22 @@ export class RefreshTokenStrategy extends PassportStrategy(
   'jwt-refresh',
 ) {
   constructor(private readonly configService: ConfigService) {
+    const publicKey = configService.getOrThrow<string>('JWT_PUBLIC_KEY');
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: any) => {
+          return request?.cookies?.refresh_token;
+        },
+      ]),
       ignoreExpiration: false,
-      secretOrKey: configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+      secretOrKey: publicKey.replace(/\\n/g, '\n'),
+      algorithms: ['RS256'],
       passReqToCallback: true,
     } as any);
   }
 
   async validate(req: Request, payload: any) {
-    const refreshToken = req.get('Authorization')?.replace('Bearer', '').trim();
+    const refreshToken = req.cookies?.refresh_token;
 
     if (!refreshToken) {
       throw new UnauthorizedException('REFRESH_TOKEN_REQUIRED');
@@ -29,6 +35,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
       id: payload.sub,
       username: payload.username,
       refreshToken,
+      jti: payload.jti,
     };
   }
 }

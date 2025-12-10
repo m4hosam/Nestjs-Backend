@@ -5,6 +5,7 @@ import { UsersService } from '../../users/services/users.service';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from '../dto/login.dto';
 import { TokensDto } from '../dto/tokens.dto';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async login(loginDto: LoginDto): Promise<TokensDto> {
+  async login(loginDto: LoginDto): Promise<TokensDto & { user: any }> {
     const user = await this.usersService.findByUsername(loginDto.username);
 
     if (!user) {
@@ -42,13 +43,24 @@ export class AuthService {
 
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
-    return tokens;
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        roles: user.roles,
+      },
+    };
   }
 
   async refreshTokens(
     userId: number,
     refreshToken: string,
-  ): Promise<TokensDto> {
+    refreshJti: string,
+  ): Promise<TokensDto & { user: any }> {
     const user = await this.usersService.findEntityById(userId);
 
     if (!user || !user.refreshToken) {
@@ -64,6 +76,10 @@ export class AuthService {
       throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
     }
 
+    // Prepare payload check including checking if the refresh JTI matches what we expect if we stored it?
+    // Current requirement: "Create refresh_jti along the access atoken and refresh token"
+    // And "Create another cookie that contains user details which gets refreshed"
+
     const tokens = await this.generateTokens(
       user.id,
       user.username,
@@ -72,7 +88,17 @@ export class AuthService {
 
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
-    return tokens;
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        roles: user.roles,
+      },
+    };
   }
 
   async logout(userId: number): Promise<void> {
@@ -84,18 +110,35 @@ export class AuthService {
     username: string,
     roles: string[],
   ): Promise<TokensDto> {
+    // Check if crypto is available (Node 19+ has global crypto, but import is safer for types)
+    const refreshJti = crypto.randomUUID();
     const payload = { sub: userId, username, roles };
+    const refreshPayload = { ...payload, jti: refreshJti };
+
+    // --- CHANGED SECTION START ---
+    // Read the Base64 string from config
+    const privateKeyBase64 = this.configService.getOrThrow<string>(
+      'JWT_PRIVATE_KEY_BASE64',
+    );
+
+    // Decode it to get the correct multiline PEM format
+    const privateKey = Buffer.from(privateKeyBase64, 'base64').toString(
+      'utf-8',
+    );
+    // --- CHANGED SECTION END ---
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+        privateKey: privateKey,
+        algorithm: 'RS256',
         expiresIn: this.configService.get<string>(
           'JWT_ACCESS_EXPIRATION',
           '15m',
         ) as any,
       }),
-      this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      this.jwtService.signAsync(refreshPayload, {
+        privateKey: privateKey,
+        algorithm: 'RS256',
         expiresIn: this.configService.get<string>(
           'JWT_REFRESH_EXPIRATION',
           '7d',

@@ -4,12 +4,14 @@ import { ROLES_KEY } from '../decorators/roles.decorator';
 import { ForbiddenException } from '../exceptions/forbidden.exception';
 import { ErrorMessages } from '../constants/error-messages.constants';
 
+import { RoleEnum } from '../enums/roles.enum';
+
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+    const requiredRoles = this.reflector.getAllAndOverride<RoleEnum[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
     );

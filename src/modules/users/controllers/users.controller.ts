@@ -25,6 +25,7 @@ import { BaseFilterDto } from '../../../common/dto/base-filter.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
+import { RoleEnum } from '../../../common/enums/roles.enum';
 import { ApiResponseWrapper } from '../../../common/decorators/api-response.decorator';
 import { PaginatedResult } from '../../../common/interfaces/pagination.interface';
 
@@ -36,7 +37,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  // @Roles('admin')
+  // @Roles(RoleEnum.Admin)
   @ApiOperation({ summary: 'Get all users with pagination' })
   @ApiResponseWrapper(UserResponseDto, true, true)
   async findAll(
@@ -54,7 +55,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles('admin', 'manager')
+  @Roles(RoleEnum.Admin, RoleEnum.Manager)
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiParam({ name: 'id', type: Number, description: 'User ID' })
   @ApiResponseWrapper(UserResponseDto)
@@ -65,7 +66,7 @@ export class UsersController {
   }
 
   @Post()
-  @Roles('admin')
+  @Roles(RoleEnum.Admin)
   @ApiOperation({ summary: 'Create new user' })
   @ApiResponseWrapper(UserResponseDto)
   async create(
@@ -77,7 +78,7 @@ export class UsersController {
   }
 
   @Put()
-  @Roles('admin')
+  @Roles(RoleEnum.Admin)
   @ApiOperation({ summary: 'Update user' })
   @ApiResponseWrapper(UserResponseDto)
   async update(
@@ -89,7 +90,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles(RoleEnum.Admin)
   @ApiOperation({ summary: 'Delete user' })
   async delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.usersService.delete(id);
