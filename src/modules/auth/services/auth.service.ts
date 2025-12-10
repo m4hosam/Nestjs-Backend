@@ -76,10 +76,6 @@ export class AuthService {
       throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
     }
 
-    // Prepare payload check including checking if the refresh JTI matches what we expect if we stored it?
-    // Current requirement: "Create refresh_jti along the access atoken and refresh token"
-    // And "Create another cookie that contains user details which gets refreshed"
-
     const tokens = await this.generateTokens(
       user.id,
       user.username,
@@ -110,41 +106,20 @@ export class AuthService {
     username: string,
     roles: string[],
   ): Promise<TokensDto> {
-    // Check if crypto is available (Node 19+ has global crypto, but import is safer for types)
     const refreshJti = crypto.randomUUID();
     const payload = { sub: userId, username, roles };
     const refreshPayload = { ...payload, jti: refreshJti };
 
-    const privateKey = this.configService.getOrThrow<string>('JWT_PRIVATE_KEY');
-
-    // Robust formatting for PEM key
-    let formattedPrivateKey = privateKey.replace(/\\n/g, '\n');
-    if (!formattedPrivateKey.includes('\n')) {
-      // If no newlines found after replacement (meaning it was a solid single line)
-      // Force header/footer newlines
-      formattedPrivateKey = formattedPrivateKey
-        .replace(
-          '-----BEGIN RSA PRIVATE KEY-----',
-          '-----BEGIN RSA PRIVATE KEY-----\n',
-        )
-        .replace(
-          '-----END RSA PRIVATE KEY-----',
-          '\n-----END RSA PRIVATE KEY-----',
-        );
-    }
-
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
-        privateKey: formattedPrivateKey,
-        algorithm: 'RS256',
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
         expiresIn: this.configService.get<string>(
           'JWT_ACCESS_EXPIRATION',
           '15m',
         ) as any,
       }),
       this.jwtService.signAsync(refreshPayload, {
-        privateKey: formattedPrivateKey,
-        algorithm: 'RS256',
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
         expiresIn: this.configService.get<string>(
           'JWT_REFRESH_EXPIRATION',
           '7d',

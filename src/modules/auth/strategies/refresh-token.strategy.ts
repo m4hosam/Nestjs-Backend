@@ -10,14 +10,6 @@ export class RefreshTokenStrategy extends PassportStrategy(
   'jwt-refresh',
 ) {
   constructor(private readonly configService: ConfigService) {
-    const publicKey = configService.getOrThrow<string>('JWT_PUBLIC_KEY');
-    let formattedPublicKey = publicKey.replace(/\\n/g, '\n');
-    if (!formattedPublicKey.includes('\n')) {
-      formattedPublicKey = formattedPublicKey
-        .replace('-----BEGIN PUBLIC KEY-----', '-----BEGIN PUBLIC KEY-----\n')
-        .replace('-----END PUBLIC KEY-----', '\n-----END PUBLIC KEY-----');
-    }
-
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: any) => {
@@ -25,10 +17,9 @@ export class RefreshTokenStrategy extends PassportStrategy(
         },
       ]),
       ignoreExpiration: false,
-      secretOrKey: formattedPublicKey,
-      algorithms: ['RS256'],
+      secretOrKey: configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
       passReqToCallback: true,
-    } as any);
+    });
   }
 
   async validate(req: Request, payload: any) {

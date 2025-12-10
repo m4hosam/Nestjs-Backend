@@ -16,14 +16,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
-    const publicKey = configService.getOrThrow<string>('JWT_PUBLIC_KEY');
-    let formattedPublicKey = publicKey.replace(/\\n/g, '\n');
-    if (!formattedPublicKey.includes('\n')) {
-      formattedPublicKey = formattedPublicKey
-        .replace('-----BEGIN PUBLIC KEY-----', '-----BEGIN PUBLIC KEY-----\n')
-        .replace('-----END PUBLIC KEY-----', '\n-----END PUBLIC KEY-----');
-    }
-
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: any) => {
@@ -31,8 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         },
       ]),
       ignoreExpiration: false,
-      secretOrKey: formattedPublicKey,
-      algorithms: ['RS256'],
+      secretOrKey: configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
     });
   }
 
