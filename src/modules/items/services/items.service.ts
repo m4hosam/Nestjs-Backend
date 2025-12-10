@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { GenericService } from '../../../services/generic/generic.service';
-import { Item } from '../../../entities/items/item.entity';
+import { Item } from '../entities/item.entity';
 import { CreateItemDto } from '../dto/create-item.dto';
 import { UpdateItemDto } from '../dto/update-item.dto';
 import { ItemResponseDto } from '../dto/item-response.dto';
-import { ItemRepository } from '../../../repositories/items/item.repository';
+import { ItemRepository } from '../repositories/item.repository';
 import { plainToInstance } from 'class-transformer';
 import { BusinessValidationException } from '../../../common/exceptions/business-validation.exception';
 import { ErrorMessages } from '../../../common/constants/error-messages.constants';

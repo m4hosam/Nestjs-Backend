@@ -1,5 +1,5 @@
 import { Entity, Column, Index } from 'typeorm';
-import { BaseTransactionEntity } from '../base/base-transaction.entity';
+import { BaseTransactionEntity } from '../../../common/entities/base/base-transaction.entity';
 
 @Entity({ name: 'users', schema: 'public' })
 @Index(['username'])

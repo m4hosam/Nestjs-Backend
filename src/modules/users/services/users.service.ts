@@ -1,11 +1,11 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { RoleEnum } from '../../../common/enums/roles.enum';
 import { GenericService } from '../../../services/generic/generic.service';
-import { User } from '../../../entities/users/user.entity';
+import { User } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
-import { UserRepository } from '../../../repositories/users/user.repository';
+import { UserRepository } from '../repositories/user.repository';
 import { plainToInstance } from 'class-transformer';
 import { BusinessValidationException } from '../../../common/exceptions/business-validation.exception';
 import * as bcrypt from 'bcrypt';
