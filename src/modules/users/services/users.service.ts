@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { RoleEnum } from '../../../common/enums/roles.enum';
-import { GenericService } from '../../../services/generic/generic.service';
+import { GenericService } from '../../../common/services/generic.service';
 import { User } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';

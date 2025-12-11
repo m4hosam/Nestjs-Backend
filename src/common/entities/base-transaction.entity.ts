@@ -6,7 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../../modules/users/entities/user.entity';
+import { User } from '../../modules/users/entities/user.entity';
 
 export abstract class BaseTransactionEntity {
   @PrimaryGeneratedColumn()

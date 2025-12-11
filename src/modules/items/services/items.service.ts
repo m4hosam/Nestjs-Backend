@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GenericService } from '../../../services/generic/generic.service';
+import { GenericService } from '../../../common/services/generic.service';
 import { Item } from '../entities/item.entity';
 import { CreateItemDto } from '../dto/create-item.dto';
 import { UpdateItemDto } from '../dto/update-item.dto';

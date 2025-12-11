@@ -1,10 +1,10 @@
-import { GenericRepository } from '../../repositories/generic/generic.repository';
+import { GenericRepository } from '../repositories/generic.repository';
 import {
   IPaginationOptions,
   PaginatedResult,
-} from '../../common/interfaces/pagination.interface';
+} from '../interfaces/pagination.interface';
 import { FindManyOptions, ObjectLiteral } from 'typeorm';
-import { NotFoundException } from '../../common/exceptions/not-found.exception';
+import { NotFoundException } from '../exceptions/not-found.exception';
 
 export abstract class GenericService<
   T extends ObjectLiteral,
