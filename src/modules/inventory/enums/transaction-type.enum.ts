@@ -1,0 +1,8 @@
+export enum TransactionType {
+    IN_PURCHASE = 'IN_PURCHASE',
+    OUT_SALES = 'OUT_SALES',
+    TRANSFER = 'TRANSFER',
+    WASTE = 'WASTE',
+    ADJUSTMENT = 'ADJUSTMENT',
+    PRODUCTION = 'PRODUCTION',
+}

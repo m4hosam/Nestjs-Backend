@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ItemsModule } from './modules/items/items.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CatalogModule } from './modules/catalog/catalog.module';
     UsersModule,
     ItemsModule,
     CatalogModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [
