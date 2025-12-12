@@ -6,7 +6,6 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../modules/users/entities/user.entity';
 
 export abstract class BaseTransactionEntity {
   @PrimaryGeneratedColumn()
@@ -24,13 +23,13 @@ export abstract class BaseTransactionEntity {
   @Column({ name: 'updated_by', type: 'int', nullable: true })
   updatedBy?: number;
 
-  @ManyToOne(() => User, { nullable: true })
+  @ManyToOne('User', { nullable: true })
   @JoinColumn({ name: 'created_by' })
-  creator?: User;
+  creator?: any;
 
-  @ManyToOne(() => User, { nullable: true })
+  @ManyToOne('User', { nullable: true })
   @JoinColumn({ name: 'updated_by' })
-  updater?: User;
+  updater?: any;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
