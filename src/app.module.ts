@@ -11,6 +11,7 @@ import { UsersModule } from './modules/users/users.module';
 import { ItemsModule } from './modules/items/items.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { SalesModule } from './modules/sales/sales.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
     ItemsModule,
     CatalogModule,
     InventoryModule,
+    SalesModule,
   ],
   controllers: [AppController],
   providers: [
