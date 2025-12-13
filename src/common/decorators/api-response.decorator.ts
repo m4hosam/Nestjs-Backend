@@ -1,5 +1,5 @@
 import { applyDecorators, Type } from '@nestjs/common';
-import { ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
+import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 
 export const ApiResponseWrapper = <TModel extends Type<any>>(
   model: TModel,
@@ -8,6 +8,7 @@ export const ApiResponseWrapper = <TModel extends Type<any>>(
 ) => {
   if (isPaginated) {
     return applyDecorators(
+      ApiExtraModels(model), // 👈 السطر ده هو الحل السحري! بيعرف Swagger على الـ DTO
       ApiOkResponse({
         schema: {
           allOf: [

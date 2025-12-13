@@ -12,6 +12,8 @@ import { ItemsModule } from './modules/items/items.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { SalesModule } from './modules/sales/sales.module';
+import { FinanceModule } from './modules/finance/finance.module';
+import { OperationsRestaurantModule } from './modules/operations-restaurant/operations-restaurant.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { SalesModule } from './modules/sales/sales.module';
     CatalogModule,
     InventoryModule,
     SalesModule,
+    FinanceModule,
+    OperationsRestaurantModule,
   ],
   controllers: [AppController],
   providers: [
