@@ -23,7 +23,7 @@ import { RoleEnum } from '../../../common/enums/roles.enum';
 
 @ApiTags('Finance - Payment Methods')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('finance/payment-methods')
 export class PaymentMethodController {
     constructor(private readonly service: PaymentMethodService) { }

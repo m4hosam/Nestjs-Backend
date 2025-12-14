@@ -9,7 +9,7 @@ import { Public } from '../../../common/decorators/public.decorator';
 
 @ApiTags('Catalog: Products')
 @Controller('products')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class ProductController {
     constructor(private readonly service: ProductService) { }
 

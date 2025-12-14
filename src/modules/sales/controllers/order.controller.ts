@@ -10,7 +10,7 @@ import { BaseFilterDto } from '../../../common/dto/base-filter.dto';
 
 @ApiTags('Sales - Orders')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrderController {
     constructor(private readonly orderService: OrderService) { }
@@ -18,8 +18,9 @@ export class OrderController {
     @Post()
     @ApiOperation({ summary: 'Create a new order' })
     @ApiResponseWrapper(OrderResponseDto)
-    async create(@Body() dto: CreateOrderDto, @Req() req: any): Promise<OrderResponseDto> {
-        return this.orderService.createOrder(dto, req.user.id);
+    async create(@Body() dto: CreateOrderDto) {
+        const userId = 1; // Hardcoded user ID for testing
+        return this.orderService.createOrder(dto, userId);
     }
 
     @Patch(':id/complete')

@@ -84,4 +84,8 @@ export class ShiftService extends GenericService<Shift, CreateShiftDto, any, Shi
 
         return this.toResponseDto(updatedShift!);
     }
+    async findActiveShiftByUser(userId: number): Promise<ShiftResponseDto | null> {
+        const shift = await this.shiftRepository.findActiveShiftByUser(userId);
+        return shift ? this.toResponseDto(shift) : null;
+    }
 }

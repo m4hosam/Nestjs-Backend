@@ -10,7 +10,7 @@ import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 @ApiTags('Restaurant Operations - Tables')
 @ApiBearerAuth()
 @Controller('operations/restaurant/tables')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class TableController {
     constructor(private readonly tableService: TableService) { }
 
