@@ -13,10 +13,10 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async login(loginDto: LoginDto): Promise<TokensDto & { user: any }> {
-    const user = await this.usersService.findByUsername(loginDto.username);
+    const user = await this.usersService.findByUsername(loginDto.email);
 
     if (!user) {
       throw new UnauthorizedException('INVALID_CREDENTIALS');
