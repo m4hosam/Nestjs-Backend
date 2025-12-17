@@ -9,6 +9,11 @@ import databaseConfig from './config/database.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ItemsModule } from './modules/items/items.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { SalesModule } from './modules/sales/sales.module';
+import { FinanceModule } from './modules/finance/finance.module';
+import { OperationsRestaurantModule } from './modules/operations-restaurant/operations-restaurant.module';
 
 @Module({
   imports: [
@@ -30,6 +35,11 @@ import { ItemsModule } from './modules/items/items.module';
     AuthModule,
     UsersModule,
     ItemsModule,
+    CatalogModule,
+    InventoryModule,
+    SalesModule,
+    FinanceModule,
+    OperationsRestaurantModule,
   ],
   controllers: [AppController],
   providers: [
@@ -40,4 +50,4 @@ import { ItemsModule } from './modules/items/items.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

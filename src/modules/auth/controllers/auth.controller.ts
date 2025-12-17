@@ -20,7 +20,7 @@ import { Public } from '../../../common/decorators/public.decorator';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Public()
   @Post('login')
@@ -33,7 +33,10 @@ export class AuthController {
   ): Promise<any> {
     const tokens = await this.authService.login(loginDto);
     this.setCookies(res, tokens);
-    return { message: 'Login successful' };
+    return {
+      ...tokens,
+      message: 'Login successful'
+    };
   }
 
   @Post('refresh')

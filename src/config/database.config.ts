@@ -15,6 +15,6 @@ export default registerAs(
     synchronize: process.env.NODE_ENV === 'development', // Set to false in production
     logging: process.env.NODE_ENV === 'development',
     autoLoadEntities: true,
-    ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false, // Neon usually requires SSL
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   }),
 );
