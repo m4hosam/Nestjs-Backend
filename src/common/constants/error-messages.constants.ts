@@ -31,6 +31,18 @@ export const ErrorMessages = {
     key: 'AUTH_USER_NOT_FOUND',
     message: 'User not found.',
   },
+  InvalidCredentials: {
+    key: 'INVALID_CREDENTIALS',
+    message: 'Invalid credentials.',
+  },
+  UserInactive: {
+    key: 'USER_INACTIVE',
+    message: 'User is inactive.',
+  },
+  InvalidRefreshToken: {
+    key: 'INVALID_REFRESH_TOKEN',
+    message: 'Invalid refresh token.',
+  },
 
   // Items
   SkuAlreadyExists: {

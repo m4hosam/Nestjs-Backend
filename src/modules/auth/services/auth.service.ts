@@ -1,4 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ErrorMessages } from '../../../common/constants/error-messages.constants';
+
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/services/users.service';
@@ -19,11 +21,11 @@ export class AuthService {
     const user = await this.usersService.findByUsername(loginDto.username);
 
     if (!user) {
-      throw new UnauthorizedException('INVALID_CREDENTIALS');
+      throw new UnauthorizedException(ErrorMessages.InvalidCredentials);
     }
 
     if (!user.isActive) {
-      throw new UnauthorizedException('USER_INACTIVE');
+      throw new UnauthorizedException(ErrorMessages.UserInactive);
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -32,7 +34,7 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('INVALID_CREDENTIALS');
+      throw new UnauthorizedException(ErrorMessages.InvalidCredentials);
     }
 
     const tokens = await this.generateTokens(
@@ -64,7 +66,7 @@ export class AuthService {
     const user = await this.usersService.findEntityById(userId);
 
     if (!user || !user.refreshToken) {
-      throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
+      throw new UnauthorizedException(ErrorMessages.InvalidRefreshToken);
     }
 
     const isRefreshTokenValid = await bcrypt.compare(
@@ -73,7 +75,7 @@ export class AuthService {
     );
 
     if (!isRefreshTokenValid) {
-      throw new UnauthorizedException('INVALID_REFRESH_TOKEN');
+      throw new UnauthorizedException(ErrorMessages.InvalidRefreshToken);
     }
 
     const tokens = await this.generateTokens(

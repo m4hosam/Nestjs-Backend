@@ -11,7 +11,8 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-
+.env-m4h
+.env-kareem
 # OS
 .DS_Store
 
